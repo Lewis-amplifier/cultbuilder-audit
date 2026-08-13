@@ -259,7 +259,13 @@ function renderBlockers(){
     var btn=document.createElement('button');
     btn.className='opt';
     btn.textContent=b.label;
-    btn.onclick=function(){state.blocker=b.k;show('s-email')};
+    btn.onclick=function(){
+      state.blocker=b.k;
+      state.type='none';
+      renderResult();
+      progress(0,0);
+      show('s-result');
+    };
     box.appendChild(btn);
   });
 }
