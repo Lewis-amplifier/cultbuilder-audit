@@ -167,17 +167,18 @@ a.btn{display:block;text-align:center;text-decoration:none}
     <button class="back" id="qBack" onclick="prevQ()">Back</button>
   </section>
 
-  <!-- email gate -->
+  <!-- email gate. real form so GHL External Tracking can detect it. -->
   <section class="screen" id="s-email">
     <h2>Your result is ready.</h2>
     <p>Pop your details in and I will show you.</p>
-    <div style="margin-top:28px">
-      <div class="field"><input type="text" id="fName" placeholder="Full name" autocomplete="name"></div>
-      <div class="field"><input type="email" id="fEmail" placeholder="Your best email" autocomplete="email"></div>
+    <form id="gate" method="post" action="/capture" target="ghl-sink" style="margin-top:28px">
+      <div class="field"><input type="text" id="fName" name="full_name" placeholder="Full name" autocomplete="name"></div>
+      <div class="field"><input type="email" id="fEmail" name="email" placeholder="Your best email" autocomplete="email"></div>
       <div class="err" id="fErr"></div>
-      <div style="margin-top:8px"><button class="btn" onclick="submitForm()">Show me my result</button></div>
-    </div>
+      <div style="margin-top:8px"><button type="submit" class="btn">Show me my result</button></div>
+    </form>
   </section>
+  <iframe name="ghl-sink" title="capture" style="display:none" aria-hidden="true"></iframe>
 
   <!-- result -->
   <section class="screen" id="s-result">
@@ -325,37 +326,58 @@ function diagnose(a){
   return 'broadcast';
 }
 
-function submitForm(){
+/* the form submits for real so External Tracking sees it. the reply lands in
+   the hidden iframe, so this page stays put. if the browser navigates anyway,
+   the saved result below brings them back to it. */
+document.getElementById('gate').addEventListener('submit',function(e){
   var name=document.getElementById('fName').value.trim();
   var email=document.getElementById('fEmail').value.trim();
   var err=document.getElementById('fErr');
-  if(name.length<2){err.textContent='Pop your full name in.';err.classList.add('on');return}
-  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){err.textContent='That email does not look right.';err.classList.add('on');return}
+
+  if(name.length<2){
+    e.preventDefault();
+    err.textContent='Pop your full name in.';err.classList.add('on');return;
+  }
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    e.preventDefault();
+    err.textContent='That email does not look right.';err.classList.add('on');return;
+  }
   err.classList.remove('on');
 
   var a={};
   state.answers.forEach(function(v,i){a[i+1]=v});
   state.type=state.hasCommunity?diagnose(a):'none';
 
-  track(name,email);
+  save();
+  setTimeout(reveal,150);
+});
+
+function save(){
+  try{
+    sessionStorage.setItem('cb_result',JSON.stringify({
+      type:state.type,blocker:state.blocker,at:Date.now()
+    }));
+  }catch(err){}
+}
+function reveal(){
   renderResult();
   progress(0,0);
   show('s-result');
 }
-
-/* fires the hidden GHL form so the contact and their type land in the CRM */
-function track(name,email){
+/* if the page reloaded on submit, pick the result back up.
+   two minute window so an old result does not resurface days later. */
+(function(){
   try{
-    if(window.ExternalTracking&&typeof window.ExternalTracking.trackFormSubmit==='function'){
-      window.ExternalTracking.trackFormSubmit({
-        name:name,
-        email:email,
-        result_type:state.type,
-        blocker:state.blocker||''
-      });
-    }
-  }catch(e){}
-}
+    var saved=sessionStorage.getItem('cb_result');
+    if(!saved)return;
+    var d=JSON.parse(saved);
+    sessionStorage.removeItem('cb_result');
+    if(!d.at||Date.now()-d.at>120000)return;
+    state.type=d.type;state.blocker=d.blocker;
+    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',reveal);
+    else reveal();
+  }catch(err){}
+})();
 
 var RESULTS={
   broadcast:{
