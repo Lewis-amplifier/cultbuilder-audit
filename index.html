@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Community Audit | The Amplifier</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  background:#1E1E1E;
+  color:#FFFFFF;
+  font-family:'Poppins',sans-serif;
+  font-weight:300;
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:680px;margin:0 auto;padding:24px 20px 80px}
+
+/* header */
+.head{display:flex;align-items:center;justify-content:space-between;padding:8px 0 32px}
+.logo{font-weight:800;font-size:15px;letter-spacing:.5px}
+.logo span{color:#4BBCED}
+.count{font-size:12px;font-weight:400;color:rgba(255,255,255,.4);letter-spacing:.5px}
+
+/* progress */
+.bar{height:2px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden;margin-bottom:48px}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#4BBCED,#584F9C);transition:width .35s ease}
+.bar.hide{opacity:0}
+
+/* screens */
+.screen{display:none;animation:in .3s ease}
+.screen.on{display:block}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){
+  .screen{animation:none}
+  .bar i{transition:none}
+}
+
+/* type */
+h1{font-weight:800;font-size:clamp(30px,7vw,44px);line-height:1.05;letter-spacing:-.5px;margin-bottom:20px}
+h2{font-weight:800;font-size:clamp(24px,5.5vw,32px);line-height:1.15;letter-spacing:-.3px;margin-bottom:18px}
+h3{font-weight:800;font-size:15px;letter-spacing:1.4px;text-transform:uppercase;color:#4BBCED;margin:36px 0 14px}
+p{font-size:17px;line-height:1.65;margin-bottom:16px;color:rgba(255,255,255,.85)}
+p.lead{font-size:19px;color:#fff}
+.q{font-weight:600;font-size:clamp(21px,4.6vw,26px);line-height:1.3;margin-bottom:32px}
+.eyebrow{font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:14px}
+
+/* options */
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:10px;
+  color:#fff;
+  font-family:inherit;
+  font-size:16px;
+  font-weight:400;
+  padding:17px 20px;
+  text-align:left;
+  cursor:pointer;
+  transition:background .15s,border-color .15s,transform .1s;
+}
+.opt:hover{background:rgba(75,188,237,.1);border-color:#4BBCED}
+.opt:active{transform:scale(.99)}
+.opt:focus-visible{outline:2px solid #4BBCED;outline-offset:2px}
+.opt.sel{background:rgba(75,188,237,.16);border-color:#4BBCED}
+
+/* buttons */
+.btn{
+  background:linear-gradient(90deg,#4BBCED,#584F9C);
+  border:none;border-radius:10px;color:#fff;
+  font-family:inherit;font-size:16px;font-weight:600;
+  padding:17px 34px;cursor:pointer;width:100%;
+  transition:opacity .15s,transform .1s;
+}
+.btn:hover{opacity:.9}
+.btn:active{transform:scale(.99)}
+.btn:focus-visible{outline:2px solid #fff;outline-offset:3px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.back{
+  background:none;border:none;color:rgba(255,255,255,.4);
+  font-family:inherit;font-size:14px;padding:10px 0;margin-top:24px;
+  cursor:pointer;
+}
+.back:hover{color:#4BBCED}
+.back:focus-visible{outline:2px solid #4BBCED;outline-offset:2px}
+.back.hide{visibility:hidden}
+
+/* form */
+.field{margin-bottom:12px}
+.field input{
+  width:100%;background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.14);border-radius:10px;
+  color:#fff;font-family:inherit;font-size:16px;font-weight:300;
+  padding:16px 18px;
+}
+.field input::placeholder{color:rgba(255,255,255,.35)}
+.field input:focus{outline:none;border-color:#4BBCED;background:rgba(75,188,237,.06)}
+.err{color:#ff8080;font-size:14px;margin-top:10px;display:none}
+.err.on{display:block}
+
+/* result */
+.badge{
+  display:inline-block;font-size:11px;font-weight:600;letter-spacing:2px;
+  text-transform:uppercase;color:#1E1E1E;background:#4BBCED;
+  padding:7px 14px;border-radius:100px;margin-bottom:20px;
+}
+.stats{
+  display:flex;gap:12px;margin:28px 0;flex-wrap:wrap;
+}
+.stat{
+  flex:1;min-width:150px;background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:20px;
+}
+.stat b{display:block;font-weight:800;font-size:32px;color:#4BBCED;line-height:1;margin-bottom:8px}
+.stat span{font-size:14px;color:rgba(255,255,255,.7);line-height:1.4}
+.cta{
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);
+  border-radius:14px;padding:28px;margin-top:44px;
+}
+.cta p{margin-bottom:20px}
+.cta .btn{width:auto;display:inline-block;text-decoration:none}
+a.btn{display:block;text-align:center;text-decoration:none}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="head">
+    <div class="logo">THE <span>AMPLIFIER</span></div>
+    <div class="count" id="count"></div>
+  </div>
+
+  <div class="bar hide" id="bar"><i id="fill"></i></div>
+
+  <!-- intro -->
+  <section class="screen on" id="s-intro">
+    <h1>Audit your community in five minutes.</h1>
+    <p class="lead">Fourteen questions about what actually happens in your group. At the end you get a straight answer on what you have built and what to do next.</p>
+    <div style="margin-top:32px"><button class="btn" onclick="start()">Start the audit</button></div>
+  </section>
+
+  <!-- gate -->
+  <section class="screen" id="s-gate">
+    <div class="q">Have you got a group where your clients can talk to each other? A WhatsApp group, a Facebook group, Skool, anything.</div>
+    <div class="opts">
+      <button class="opt" onclick="gate(true)">Yes</button>
+      <button class="opt" onclick="gate(false)">No</button>
+    </div>
+  </section>
+
+  <!-- no community branch -->
+  <section class="screen" id="s-blocker">
+    <div class="q">What is stopping you?</div>
+    <div class="opts" id="blockerOpts"></div>
+    <button class="back" onclick="backToGate()">Back</button>
+  </section>
+
+  <!-- audit questions -->
+  <section class="screen" id="s-q">
+    <div class="q" id="qText"></div>
+    <div class="opts" id="qOpts"></div>
+    <button class="back" id="qBack" onclick="prevQ()">Back</button>
+  </section>
+
+  <!-- email gate -->
+  <section class="screen" id="s-email">
+    <h2>Your result is ready.</h2>
+    <p>Pop your details in and I will show you.</p>
+    <div style="margin-top:28px">
+      <div class="field"><input type="text" id="fName" placeholder="Full name" autocomplete="name"></div>
+      <div class="field"><input type="email" id="fEmail" placeholder="Your best email" autocomplete="email"></div>
+      <div class="err" id="fErr"></div>
+      <div style="margin-top:8px"><button class="btn" onclick="submitForm()">Show me my result</button></div>
+    </div>
+  </section>
+
+  <!-- result -->
+  <section class="screen" id="s-result">
+    <div id="resultBody"></div>
+  </section>
+
+</div>
+
+<script>
+/* GHL external tracking */
+(function(){
+  var s=document.createElement('script');
+  s.src='https://form.fitlogicsystems.co.uk/js/external-tracking.js';
+  s.setAttribute('data-tracking-id','tk_e79e804393c848c2a7d65ffae012c73e');
+  s.async=true;
+  document.head.appendChild(s);
+})();
+
+var WORKSHOP_URL='https://www.adherenceamplifier.co.uk/cultbuilder-pre-reg';
+
+var FREQ=['Never','Rarely','About monthly','Weekly','Most days'];
+var OFTEN=['Never','Rarely','Sometimes','Usually','Every time'];
+var SHARE=['All of it','Most of it','About half','Some of it','Hardly any'];
+var WHEN=['Today','This week','This month','A few months ago','Cannot remember'];
+
+/* questions 1 to 7 are the spine. 8 to 12 decide which failure. 13 and 14 are recency. */
+var QUESTIONS=[
+  {t:"A member posts something that isn't a question for you.",o:FREQ},
+  {t:"When a question gets asked, does another member answer it before you get to it?",o:OFTEN},
+  {t:"Two or more members have a back and forth that carries on without you joining in.",o:FREQ},
+  {t:"Someone shares something they found funny or interesting that has nothing to do with coaching, training, or food etc.",o:FREQ},
+  {t:"When a new member joins, does another member welcome them without you prompting it?",o:OFTEN},
+  {t:"Members mention things going on in each other's lives that they picked up from a previous post.",o:FREQ},
+  {t:"Members talk to each other outside the group. DMs, their own chat, meeting up.",o:FREQ},
+  {t:"You post something and get likes or poll votes etc, but no comments or replies.",o:FREQ},
+  {t:"You run something scheduled, like a Monday post or a wins thread, and members respond to it.",o:FREQ},
+  {t:"Members show up when they want something, then go quiet until the next time.",o:FREQ},
+  {t:"When a question gets asked, does it sit there until you answer it?",o:OFTEN},
+  {t:"Of everything posted in the group in a typical week, how much is started by you?",o:SHARE},
+  {t:"When did a member last post anything at all?",o:WHEN},
+  {t:"When did you last post anything at all?",o:WHEN}
+];
+
+var BLOCKERS=[
+  {k:'content',label:"I don't know what I'd put in it"},
+  {k:'clients',label:"I haven't got enough clients yet"},
+  {k:'died',label:"I've tried before and it went quiet"},
+  {k:'time',label:"I haven't got the time to run one"}
+];
+
+var state={answers:[],qi:0,hasCommunity:null,blocker:null,type:null};
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(function(el){el.classList.remove('on')});
+  document.getElementById(id).classList.add('on');
+  window.scrollTo(0,0);
+}
+function progress(step,total){
+  var bar=document.getElementById('bar');
+  if(!total){bar.classList.add('hide');document.getElementById('count').textContent='';return}
+  bar.classList.remove('hide');
+  document.getElementById('fill').style.width=(step/total*100)+'%';
+  document.getElementById('count').textContent=step+' / '+total;
+}
+
+function start(){show('s-gate');progress(0,0)}
+
+function gate(yes){
+  state.hasCommunity=yes;
+  if(yes){state.qi=0;state.answers=[];renderQ()}
+  else{renderBlockers();show('s-blocker')}
+}
+function backToGate(){show('s-gate');progress(0,0)}
+
+function renderBlockers(){
+  var box=document.getElementById('blockerOpts');
+  box.innerHTML='';
+  BLOCKERS.forEach(function(b){
+    var btn=document.createElement('button');
+    btn.className='opt';
+    btn.textContent=b.label;
+    btn.onclick=function(){state.blocker=b.k;show('s-email')};
+    box.appendChild(btn);
+  });
+}
+
+function renderQ(){
+  var q=QUESTIONS[state.qi];
+  document.getElementById('qText').textContent=q.t;
+  var box=document.getElementById('qOpts');
+  box.innerHTML='';
+  q.o.forEach(function(label,i){
+    var btn=document.createElement('button');
+    btn.className='opt'+(state.answers[state.qi]===i+1?' sel':'');
+    btn.textContent=label;
+    btn.onclick=function(){answer(i+1)};
+    box.appendChild(btn);
+  });
+  document.getElementById('qBack').classList.toggle('hide',state.qi===0);
+  progress(state.qi+1,QUESTIONS.length);
+  show('s-q');
+}
+function answer(v){
+  state.answers[state.qi]=v;
+  if(state.qi<QUESTIONS.length-1){state.qi++;renderQ()}
+  else{progress(QUESTIONS.length,QUESTIONS.length);show('s-email')}
+}
+function prevQ(){if(state.qi>0){state.qi--;renderQ()}}
+
+/* scoring. a[n] is the answer to question n, 1 to 5. */
+function diagnose(a){
+  var spine=0;
+  for(var i=1;i<=7;i++){spine+=a[i]||0}
+
+  var memberLast=a[13];
+  var coachLast=a[14];
+
+  /* step 1. spine high and the group is not dead */
+  if(spine>=28 && memberLast<=3) return 'living';
+
+  /* step 2. nobody home */
+  if(memberLast===4||memberLast===5){
+    if(coachLast===1||coachLast===2) return 'broadcast';
+    return 'ghost';
+  }
+
+  /* step 3. members are posting, so what kind of posting.
+     a signal has to clear 6 to count. below that nothing is
+     really happening and Broadcast is the floor. */
+  var broadcast=(a[8]||0)+(a[12]||0);
+  var timetable=(a[9]||0)*2;
+  var support=(a[10]||0)+(a[11]||0);
+  var FLOOR=6;
+
+  var top=Math.max(broadcast,timetable,support);
+  if(top<FLOOR) return 'broadcast';
+  if(support===top) return 'support';
+  if(timetable===top) return 'timetable';
+  return 'broadcast';
+}
+
+function submitForm(){
+  var name=document.getElementById('fName').value.trim();
+  var email=document.getElementById('fEmail').value.trim();
+  var err=document.getElementById('fErr');
+  if(name.length<2){err.textContent='Pop your full name in.';err.classList.add('on');return}
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){err.textContent='That email does not look right.';err.classList.add('on');return}
+  err.classList.remove('on');
+
+  var a={};
+  state.answers.forEach(function(v,i){a[i+1]=v});
+  state.type=state.hasCommunity?diagnose(a):'none';
+
+  track(name,email);
+  renderResult();
+  progress(0,0);
+  show('s-result');
+}
+
+/* fires the hidden GHL form so the contact and their type land in the CRM */
+function track(name,email){
+  try{
+    if(window.ExternalTracking&&typeof window.ExternalTracking.trackFormSubmit==='function'){
+      window.ExternalTracking.trackFormSubmit({
+        name:name,
+        email:email,
+        result_type:state.type,
+        blocker:state.blocker||''
+      });
+    }
+  }catch(e){}
+}
+
+var RESULTS={
+  broadcast:{
+    name:'The Broadcast Channel',
+    body:[
+      {p:"You post. They read. Nothing comes back."},
+      {p:"You will get likes. A few poll votes. The odd reply when you ask a question directly. But nobody starts anything of their own, and nobody talks to each other. Your members treat it like a feed, because that is what it is."},
+      {p:"Stop posting for a week and it goes silent. Most of them would not notice."},
+      {h:"What it is costing you"},
+      {p:"Every bit of energy in there comes out of you and none of it comes back. You have given yourself a second content job and this one does not pay."},
+      {p:"It also is not keeping anybody. A client who reads your posts and never speaks to another member has no more reason to stay than a client who was never added."},
+      {h:"Why it happened"},
+      {p:"Nobody has ever shown you how a community gets built, so you did what you thought you needed to do. You kept it going. You made sure there was always something in there."},
+      {p:"Which meant every time it went quiet, you filled it. And the more you filled it, the less reason anybody else had to."},
+      {h:"What to do this week"},
+      {p:"Force it."},
+      {p:"When a client sends you a question that is not specific to them, do not answer it in the DMs. Tell them to post it in the group, then answer it there straight away."},
+      {p:"Do that every time for the next fortnight. It gets members used to seeing other people's names in there instead of just yours."}
+    ]
+  },
+  support:{
+    name:'The Support Desk',
+    body:[
+      {p:"Members show up when they want something, and disappear once they have got it."},
+      {p:"Questions come in. You answer them. Then nothing until the next person needs something. Nobody answers anybody else, so every question sits there waiting for you."},
+      {p:"It is busy enough that it does not feel broken. But strip out the asks and there is nothing left in there."},
+      {h:"What it is costing you"},
+      {p:"You built it to take some of the load off yourself and it added another place you have to be."},
+      {p:"The whole point of a community is that it does not rest on you being available. Right now yours does. Every question waits for you, every answer comes from you, and if you are away for three days it backs up."},
+      {h:"Why it happened"},
+      {p:"You have been the one with the answers since day one, so that is the relationship everybody is in. They ask, you deliver. Nobody has ever had a reason to turn to the person next to them, because you got there first every time."},
+      {h:"What to do this week"},
+      {p:"Two things."},
+      {p:"Put it in the group rules. You give more than you take. If you want people to help you out, you help them out first."},
+      {p:"Then stop being the first responder. When a question comes in and you know a member who has been through the same thing, tag them and ask them what worked. Let them answer it."}
+    ]
+  },
+  ghost:{
+    name:'The Ghost Town',
+    body:[
+      {p:"It had a decent start. People posted, it felt like it was going somewhere, then it thinned out."},
+      {p:"Now the last thing in there is yours. Under it, an introduction from someone who never came back. Nobody has posted since and nobody has noticed."},
+      {h:"What it is costing you"},
+      {p:"It is not sat there neutral. Every member who looks at it sees a thing you started and stopped, and they read that as how your business is going."},
+      {p:"It also makes the next one harder. Whenever you get round to trying again, they have already watched you do this once."},
+      {h:"Why it happened"},
+      {p:"Half the people in there are not your clients anymore, and the ones who are have learned there is no reason to look."},
+      {p:"A community does not die from one big thing. It goes quiet for a fortnight, nobody says anything, and quiet becomes the normal state."},
+      {h:"What to do this week"},
+      {p:"Cull it first. Anybody in there who is not a client comes out. You cannot restart something in front of an audience who left months ago."},
+      {p:"Then give the ones who are left a reason to open it. Run something with a start and a finish, a challenge or a competition, and put a small prize on it. It does not need to be much. It needs to be a reason to post today rather than eventually."}
+    ]
+  },
+  timetable:{
+    name:'The Timetable',
+    body:[
+      {p:"Motivation Monday. Wins Friday. Question of the week."},
+      {p:"Members do respond, so it looks like it is working. But nothing in there happens that you did not put in the calendar. Nobody starts anything. Nobody posts something they just found. Nobody says hello to the new person unless you ask them to."},
+      {p:"It is all on topic. Training, food, wins. Nobody in there knows each other as people."},
+      {h:"What it is costing you"},
+      {p:"It is a Ghost Town you are keeping alive by hand. Take two weeks off and you will find out."},
+      {p:"The reason it does not keep clients is that responding to a prompt is not connection. Your members turn up because you asked, not because there is anybody in there they would miss."},
+      {h:"Why it happened"},
+      {p:"You did what you thought a community was supposed to look like. Consistent posts, a bit of structure, something happening every week."},
+      {p:"The structure works. It is just doing all the work, and while it is there nobody else has to."},
+      {h:"What to do this week"},
+      {p:"Post something that has nothing to do with coaching."},
+      {p:"Ask what everyone is watching, because you need a new show. Ask who has got a trip booked, because you want to book one. Ask for gym playlists."},
+      {p:"Keep it relevant to your lot, and let it go where it goes. You are finding out whether they will talk to each other about anything other than what you told them to."}
+    ]
+  },
+  living:{
+    name:'The Living Community',
+    body:[
+      {p:"Your community is doing the thing most never do."},
+      {p:"Members talk to each other, not just to you. Questions get answered before you get there. Someone welcomes the new person without being asked. People remember what each other have got going on."},
+      {p:"That is rare."},
+      {h:"What to double down on"},
+      {p:"Work out which handful of member behaviours are actually carrying it, then make sure they are the first thing a new member sees."},
+      {p:"New members copy whatever is in front of them in their first week. Land on a conversation between two members and that is what they think this place is. Land on a quiet feed with your post at the top and that is what they think it is instead."},
+      {p:"Communities like yours rarely die off. They get diluted. Enough people arrive who do not know how it works and it drifts back to normal without anybody deciding it should."},
+      {h:"What is next"},
+      {p:"You have built something that works. What you might not have is a way to hold it together when it doubles in size, or when the three or four people carrying it get busy for a month."},
+      {p:"That is what CultBuilder covers."}
+    ]
+  }
+};
+
+var BLOCKER_OPENERS={
+  content:["You have not started one because you do not know what would go in it."],
+  clients:["You are waiting until you have got enough clients to make it worth doing."],
+  died:["You have tried before and watched it go quiet."],
+  time:["You have not started one because you cannot see where the time comes from."]
+};
+
+function el(tag,cls,text){
+  var e=document.createElement(tag);
+  if(cls)e.className=cls;
+  if(text)e.textContent=text;
+  return e;
+}
+
+function renderResult(){
+  var box=document.getElementById('resultBody');
+  box.innerHTML='';
+
+  if(state.type==='none'){
+    box.appendChild(el('div','badge','Your result'));
+    box.appendChild(el('h2',null,'You have not built one yet.'));
+    BLOCKER_OPENERS[state.blocker].forEach(function(line){
+      box.appendChild(el('p','lead',line));
+    });
+    box.appendChild(el('p',null,'Fair enough. But here is what you are going without.'));
+
+    var stats=el('div','stats');
+    [['65%','more likely to achieve their goals when accountable to a group'],
+     ['50%','longer that those clients stay with you'],
+     ['4x','more referrals']].forEach(function(s){
+      var st=el('div','stat');
+      st.appendChild(el('b',null,s[0]));
+      st.appendChild(el('span',null,s[1]));
+      stats.appendChild(st);
+    });
+    box.appendChild(stats);
+
+    box.appendChild(el('p',null,'Same clients you have already got, staying longer and getting better results, without you signing a single new one.'));
+    box.appendChild(el('p',null,'Every month you do not have one, you are paying for it in people leaving earlier than they needed to.'));
+
+    var h=el('h3',null,'What to do about it');
+    box.appendChild(h);
+    box.appendChild(el('p',null,'First action point: start a community.'));
+    box.appendChild(el('p',null,'Second action point: come to CultBuilder and learn how to make it unreal.'));
+
+    box.appendChild(ctaBlock('Two hours on how a coaching community actually gets built.'));
+    return;
+  }
+
+  var r=RESULTS[state.type];
+  box.appendChild(el('div','badge','Your result'));
+  box.appendChild(el('h2',null,r.name));
+  r.body.forEach(function(item){
+    if(item.h)box.appendChild(el('h3',null,item.h));
+    else box.appendChild(el('p',null,item.p));
+  });
+  box.appendChild(ctaBlock('Two hours on how a coaching community actually gets built.'));
+}
+
+function ctaBlock(line){
+  var c=el('div','cta');
+  c.appendChild(el('h2',null,'CultBuilder'));
+  c.appendChild(el('p',null,line));
+  var a=document.createElement('a');
+  a.className='btn';
+  a.href=WORKSHOP_URL;
+  a.target='_blank';
+  a.rel='noopener';
+  a.textContent='See the workshop';
+  c.appendChild(a);
+  return c;
+}
+</script>
+</body>
+</html>
